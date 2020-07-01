@@ -313,7 +313,7 @@ cogs = {
 @bot.check
 async def allowed_channel(ctx):
     if ctx.channel.name != config['bot_channel']:
-        await timed_send(ctx, 'excuse me?? I only respond in {} okay'.format(config['bot_channel']))
+        await timed_send(ctx, 'excuse me?? I only respond in #{} okay'.format(config['bot_channel']))
         return False
     return True
 

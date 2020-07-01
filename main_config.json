@@ -17,7 +17,7 @@
         "calendar_id": "<id>"
     },
     "command_prefix": "$",
-    "bot_channel": "#sparcbot",
+    "bot_channel": "sparcbot",
     "admin_role": "admin",
     "novice_role": "novice",
     "staff_role": "staff",

@@ -155,7 +155,7 @@ class Welcome(commands.Cog):
 
     @commands.command()
     async def unsure(self, ctx):
-        await timed_send(ctx, 'not implemented')
+        await timed_send(ctx, 'I\'m afraid I can\'t let you do that.')
 
 
 

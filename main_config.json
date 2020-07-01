@@ -32,17 +32,17 @@
         "chill": {
             "role": "chilling",
             "noun": "chill",
-            "description": "where you can hang out to, you know, chill. play games, join casual conversations, meet staff, do your own work while hanging out in a lounge."
+            "description": "where you can hang out to, you know, chill. play games, join casual conversations, meet staff, do your own work while hanging out in a lounge. [You've unlocked the categories Lounges and Personal Rooms! Drop a cool idea in  one of the lounges.]"
         },
         "learn": {
             "role": "learner",
             "noun": "school",
-            "description": "where any sort of (mostly) structured class or activity will begin. This zone is still under construction—look out for its launch in a few days!"
+            "description": "where any sort of (mostly) structured class or activity will begin. [You've unlocked the category Schools! This zone is still under construction—look out for its launch in a few days.]"
         },
         "create": {
             "role": "sandbox",
             "noun": "sandbox",
-            "description": "find co-creators through Personal Rooms, or start things rolling in https://forum.sparc-camp.org/. this zone is an open sandbox, have fun with it!"
+            "description": "find co-creators through Personal Rooms, or start things rolling in https://forum.sparc-camp.org/. this zone is an open sandbox, have fun with it! [You've unlocked the category Personal Rooms! Say hi to #yanzhang.]"
         }
     },
     "error_messages": {

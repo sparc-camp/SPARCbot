@@ -1,0 +1,47 @@
+{
+    "discord_auth_token": "NzI1NTkwMDQ5MTM5MzI3MDE3.XvfFWA.aRyqJ98zyuoum8SQvTluUfmbfaA",
+    "google_api_auth": {
+        "credentials": {
+            "installed": {
+                "client_id": "796559585081-mrtk350s3pti84rsp2u16p3p1s6p1k34.apps.googleusercontent.com",
+                "project_id": "vsparc-testing-2",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": "ruwKiTmCIttc0Sn-VyXdMoeB",
+                "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob","http://localhost"]
+            }
+        },
+        "scopes": ["https://www.googleapis.com/auth/calendar.events"],
+        "token_file": "gtoken.pickle",
+        "calendar_id": "miip51280caas1b7vou515lt5s@group.calendar.google.com"
+    },
+    "command_prefix": "$",
+    "admin_role": "admin",
+    "novice_role": "novice",
+    "staff_role": "staff",
+    "student_role": "student",
+    "everything_role": "everything",
+    "categories": {
+        "discover": {
+            "role": "discoverer",
+            "noun": "discovery",
+            "description": "a.k.a the forum (https://forum.sparc-camp.org/) and associated cross-posting channels in the Discord."
+        },
+        "chill": {
+            "role": "chilling",
+            "noun": "chill",
+            "description": "where you can hang out to, you know, chill. play games, join casual conversations, meet staff, do your own work while hanging out in a lounge."
+        },
+        "learn": {
+            "role": "learner",
+            "noun": "school",
+            "description": "where any sort of (mostly) structured class or activity will begin. This zone is still under construction—look out for its launch in a few days!"
+        }
+    },
+    "error_messages": {
+        "no_DM": "Hi! I don't like DMs. Let's talk in the server.",
+        "role_not_found": "Server doesn't have role \"{}\". Talk to an admin.",
+        "need_role": "Must have role \"{}\" to do that action."
+    }
+}

@@ -55,6 +55,7 @@ class Welcome(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.lock = False
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
@@ -79,6 +80,10 @@ class Welcome(commands.Cog):
 
     @commands.command()
     async def tutorial(self, ctx):
+        if self.lock:
+            await timed_send(ctx, 'one at a time, please!')
+            return
+        self.lock = True
         for msg in [
             'let\'s get started!',
             'SPARC is organized into four different zones.',
@@ -103,12 +108,14 @@ class Welcome(commands.Cog):
                     await self.bot.wait_for('reaction_add', timeout=15, check=lambda r, u: check(sent, r, u))
                 except TimeoutError:
                     await timed_send(ctx, 'guess not :/')
+                    self.lock = False
                     return
 
             await ctx.author.remove_roles(*list(filter(
                 lambda r: r.name in [x['role'] for x in config['categories'].values()],
                 roles_list)))
 
+        self.lock = False
         await timed_send(ctx, 'congratulations! you have completed the tutorial.')
         await ctx.author.add_roles(discord.utils.get(roles_list, name=config['student_role']))
         await ctx.author.remove_roles(discord.utils.get(roles_list, name=config['novice_role']))
@@ -302,6 +309,13 @@ cogs = {
     'calendar': Calendar,
     #'Admin': Admin     <-- no because this shouldn't be disabled
 }
+
+@bot.check
+async def allowed_channel(ctx):
+    if ctx.channel.name != config['bot_channel']:
+        await timed_send(ctx, 'excuse me?? I only respond in {} okay'.format(config['bot_channel']))
+        return False
+    return True
 
 bot.add_cog(cogs['welcome'](bot))
 bot.add_cog(Admin(bot))

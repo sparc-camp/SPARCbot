@@ -1,22 +1,23 @@
 {
-    "discord_auth_token": "NzI1NTkwMDQ5MTM5MzI3MDE3.XvfFWA.aRyqJ98zyuoum8SQvTluUfmbfaA",
+    "discord_auth_token": "<token>",
     "google_api_auth": {
         "credentials": {
             "installed": {
-                "client_id": "796559585081-mrtk350s3pti84rsp2u16p3p1s6p1k34.apps.googleusercontent.com",
-                "project_id": "vsparc-testing-2",
+                "client_id": "<id>",
+                "project_id": "<id>",
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                 "token_uri": "https://oauth2.googleapis.com/token",
                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "ruwKiTmCIttc0Sn-VyXdMoeB",
+                "client_secret": "<secret>",
                 "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob","http://localhost"]
             }
         },
         "scopes": ["https://www.googleapis.com/auth/calendar.events"],
         "token_file": "gtoken.pickle",
-        "calendar_id": "miip51280caas1b7vou515lt5s@group.calendar.google.com"
+        "calendar_id": "<id>"
     },
     "command_prefix": "$",
+    "bot_channel": "#sparcbot",
     "admin_role": "admin",
     "novice_role": "novice",
     "staff_role": "staff",
@@ -37,6 +38,11 @@
             "role": "learner",
             "noun": "school",
             "description": "where any sort of (mostly) structured class or activity will begin. This zone is still under construction—look out for its launch in a few days!"
+        },
+        "create": {
+            "role": "sandbox",
+            "noun": "sandbox",
+            "description": "find co-creators through Personal Rooms, or start things rolling in https://forum.sparc-camp.org/. this zone is an open sandbox, have fun with it!"
         }
     },
     "error_messages": {

@@ -5,8 +5,9 @@ from enum import Enum
 from humanize import naturalday, naturaltime
 import json
 import logging
-import pickle
 from os.path import exists as file_exists
+import pickle
+from random import randint
 
 import discord
 from discord.ext import commands
@@ -20,6 +21,8 @@ logging.basicConfig(level=logging.INFO)
 CONFIG_FILE = 'main_config.json'
 with open(CONFIG_FILE, 'r') as f:
     config = json.load(f)
+with open(config['auth_file'], 'r') as f:
+    config.update(json.load(f))
 bot = commands.Bot(config['command_prefix'])
 
 seens = {}
@@ -28,8 +31,8 @@ seens = {}
 # helper functions
 
 async def timed_send(ctx, msg):
-    async with ctx.channel.typing():
-        await sleep(len(msg) * 0.06) # 0.06 seconds to 'type' each character
+    #async with ctx.channel.typing():
+    #    await sleep(len(msg) * 0.06) # 0.06 seconds to 'type' each character
     return await ctx.send(msg)
 
 async def check_guild_role(ctx, role, warn=False):
@@ -66,7 +69,7 @@ class Welcome(commands.Cog):
         elif before.status is not discord.Status.online and after.status is discord.Status.online:
             # member might be entering vSPARC
             seen = seens.get(before.id, datetime.datetime(2020, 6, 1))
-            if datetime.datetime.now() - seen > datetime.timedelta(hours=1):
+            if datetime.datetime.now() - seen > datetime.timedelta(hours=config['timeouts']['away_hours']):
                 # yup, member has not been seen online in the last hour
                 roles_list = after.guild.roles
                 if discord.utils.get(roles_list, name=config['everything_role']) not in after.roles:
@@ -92,20 +95,23 @@ class Welcome(commands.Cog):
         ]:
             await timed_send(ctx, msg)
 
-        def check(message, reaction, user):
-            return user == ctx.message.author and str(reaction.emoji) == '👍'
+        def check(messages, reaction, user):
+            return reaction.message.id in map(lambda m: m.id, messages) and user == ctx.message.author and str(reaction.emoji) == '👍'
 
         roles_list = ctx.guild.roles
         for cat in config['categories']:
-            sent = await timed_send(ctx, 'the {0} zone: {1}'.format(config['categories'][cat]['noun'], config['categories'][cat]['description']))
+            sent = [
+                await timed_send(ctx, 'the {0} zone: {1}'.format(config['categories'][cat]['noun'], config['categories'][cat]['description'])),
+                await timed_send(ctx, config['categories'][cat]['tutorial'].format(config['categories'][cat]['role']))
+            ]
             await ctx.author.add_roles(discord.utils.get(roles_list, name=config['categories'][cat]['role']))
 
             try:
-                await self.bot.wait_for('reaction_add', timeout=300, check=lambda r, u: check(sent, r, u))
+                await self.bot.wait_for('reaction_add', timeout=config['timeouts']['tutorial_react_seconds'], check=lambda r, u: check(sent, r, u))
             except TimeoutError:
-                sent = await timed_send(ctx, '{}, are you still here? react 👍 if you are'.format(ctx.author.mention))
+                sent = [await timed_send(ctx, '{}, are you still here? react 👍 if you are'.format(ctx.author.mention))]
                 try:
-                    await self.bot.wait_for('reaction_add', timeout=15, check=lambda r, u: check(sent, r, u))
+                    await self.bot.wait_for('reaction_add', timeout=config['timeouts']['tutorial_cancel_seconds'], check=lambda r, u: check(sent, r, u))
                 except TimeoutError:
                     await timed_send(ctx, 'guess not :/')
                     self.lock = False
@@ -152,6 +158,11 @@ class Welcome(commands.Cog):
         else:
             await sleep(0.5)
             await ctx.message.add_reaction('👍')
+            r = randint(1, 4)
+            if r == 1:
+                await timed_send(ctx, 'protip: did you know you can add roles to yourself by clicking on your name?')
+            elif r == 2:
+                await timed_send(ctx, 'protip: if you give yourself the "everything" role, you\'ll see all the categories all the time, and I\'ll never take it away from you <3')
 
     @commands.command()
     async def unsure(self, ctx):
@@ -312,9 +323,9 @@ cogs = {
 
 @bot.check
 async def allowed_channel(ctx):
-    if ctx.channel.name != config['bot_channel']:
-        await timed_send(ctx, 'excuse me?? I only respond in #{} okay'.format(config['bot_channel']))
-        return False
+    #if ctx.channel.name != config['bot_channel']:
+    #    await timed_send(ctx, 'excuse me?? I only respond in #{} okay'.format(config['bot_channel']))
+    #    return False
     return True
 
 bot.add_cog(cogs['welcome'](bot))

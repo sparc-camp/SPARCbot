@@ -1,21 +1,5 @@
 {
-    "discord_auth_token": "<token>",
-    "google_api_auth": {
-        "credentials": {
-            "installed": {
-                "client_id": "<id>",
-                "project_id": "<id>",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "<secret>",
-                "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob","http://localhost"]
-            }
-        },
-        "scopes": ["https://www.googleapis.com/auth/calendar.events"],
-        "token_file": "gtoken.pickle",
-        "calendar_id": "<id>"
-    },
+    "auth_file": "auth.json",
     "command_prefix": "$",
     "bot_channel": "sparcbot",
     "admin_role": "admin",
@@ -27,27 +11,36 @@
         "discover": {
             "role": "discoverer",
             "noun": "discovery",
-            "description": "a.k.a the forum (https://forum.sparc-camp.org/) and associated cross-posting channels in the Discord."
+            "description": "a.k.a the forum (https://forum.sparc-camp.org/) and associated cross-posting channels in the Discord.",
+            "tutorial": "(have you looked at the \"How to Discord\" post yet?)"
         },
         "chill": {
             "role": "chilling",
             "noun": "chill",
-            "description": "where you can hang out to, you know, chill. play games, join casual conversations, meet staff, do your own work while hanging out in a lounge. [You've unlocked the categories Lounges and Personal Rooms! Drop a cool idea in  one of the lounges.]"
+            "description": "where you can hang out to, you know, chill. play games, join casual conversations, meet staff, do your own work while hanging out in a lounge.",
+            "tutorial": "with the {0} role, you've unlocked Lounges and Personal Rooms! drop into a voice channel to say hi, or find out if any games are going on right now, before continuing."
         },
         "learn": {
             "role": "learner",
             "noun": "school",
-            "description": "where any sort of (mostly) structured class or activity will begin. [You've unlocked the category Schools! This zone is still under construction—look out for its launch in a few days.]"
+            "description": "where any sort of (mostly) structured class or activity will begin.",
+            "tutorial": "with the {0} role, you've unlocked Schools! still under construction—look out for its launch in a few days."
         },
         "create": {
             "role": "sandbox",
             "noun": "sandbox",
-            "description": "find co-creators through Personal Rooms, or start things rolling in https://forum.sparc-camp.org/. this zone is an open sandbox, have fun with it! [You've unlocked the category Personal Rooms! Say hi to #yanzhang.]"
+            "description": "find co-creators through Personal Rooms, or start things rolling in https://forum.sparc-camp.org/. this zone is an open sandbox, have fun with it!",
+            "tutorial": "with the {0} role, you've unlocked Personal Rooms! say hi to someone you want to get to know better."
         }
     },
     "error_messages": {
         "no_DM": "Hi! I don't like DMs. Let's talk in the server.",
         "role_not_found": "Server doesn't have role \"{}\". Talk to an admin.",
         "need_role": "Must have role \"{}\" to do that action."
+    },
+    "timeouts": {
+        "away_hours": 2,
+        "tutorial_react_seconds": 300,
+        "tutorial_cancel_seconds": 15
     }
 }

@@ -33,3 +33,10 @@ which is a JSON file with the following structure:
 5. Remember to make a new branch if you are working on new features!
 
 6. Run the bot with `python3 SPARCbot.py`.
+
+## TODO
+
+* Some functioning code already exists for a Google Calendar integration. Iron it out and make sure it does what people want it to do.
+* Automatically keep track of bets! Will probably need a form of persistent storage that doesn't reset when the bot is restarted. Even better if this persistent storage is actually a Google Spreadsheet also accessible to humans.
+* Checking whether roles exist on the server and whether a member has certain roles is a little befuddled right now, and there is code duplication / code is not well-organized. Come up with a better way to do this. Maybe using bot-, cog-, and command-level [checks](https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.check).
+* Add Easter eggs? Or rather, secular diet-inclusive surprises.

@@ -44,9 +44,8 @@
         "tutorial_cancel_seconds": 15
     },
     "bet_status": {
-      "all": "all",
       "open": "open",
-      "standing": "standing",
+      "standing": "ongoing",
       "pending": "pending",
       "resolved": "resolved"
     },

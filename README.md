@@ -24,8 +24,8 @@ which is a JSON file with the following structure:
 **Don't make this file public!** This file is in `.gitignore` to reduce the chances of pushing it to GitHub by accident.
 
 3. Go to https://discord.com/developers/applications and make a new application.
-   1. The "client secret" is what is stored in `auth.json`, under the key `discord_auth_token`.
    1. Go to "Bot" settings and make a bot account.
+   1. The "token" is what is stored in `auth.json`, under the key `discord_auth_token`.
    1. Go to "OAuth2" settings and select the "bot" scope. Then, add the appropriate permissions: I think "Manage Roles", "View Channels", "Send Messages", "Embed Links", "Use External Emojis", and "Add Reactions" are needed right now. Then open the link that starts with `https://discord.com/api/oauth2/authorize` (right below the scopes box) and add the bot to a Discord server (ask @shardulc for access to a pre-existing testing server!).
 
 4. (Remind @shardulc to fill this in later. You can leave it blank in `auth.json` for now.)

@@ -203,7 +203,7 @@ class Bets(commands.Cog):
         new_bet = {
             "bet_id": current_bet_id,
             "bidder": name,
-            "status": config['bet_status'][status],
+            "status": status,
             "statement": statement
         }
         bet_log[bet_key] = new_bet
@@ -214,7 +214,7 @@ class Bets(commands.Cog):
         #save updated bets
         with open("bet_log.json","w") as write_file:
             json.dump(bet_log,write_file,indent=4)
-        return current_bet_id
+        return bet_log
 
     def check_author(self,ctx,bet_id: int):
         '''checks if the person giving commands is in the bet'''
@@ -237,14 +237,22 @@ class Bets(commands.Cog):
         '''<statement>: create an open bet'''
         #share a unique bet_id
         try:
-            bet_id = self.add_new_bet(ctx.author.id,statement)
+            #default bet is one-time
+            status = 'open'
+
+            #make an ongoing bet
+            if statement.startswith(config['bet_status']['standing']):
+                statement = statement.split(' ',1)[1]
+                status = 'standing'
+
+            #add the bet
+            bet_log = self.add_new_bet(ctx.author.id,statement,status)
+            bet_id = bet_log['current_bet_id']
             nick = await get_nick_from_id(ctx,ctx.author.id)
             await timed_send(ctx, nick+' added bet '+str(bet_id)+': \"'+statement+'\"')
         except Exception as e:
             await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
             raise
-
-    # TODO: create a standing bet
 
     @commands.command()
     async def imout(self,ctx):
@@ -264,7 +272,7 @@ class Bets(commands.Cog):
             bet_key = 'bet_'+str(i)
             try:
                 #only find open bets the author owns
-                if bet_log[bet_key]['bidder'] == ctx.author.id and bet_log[bet_key]['status'] in (config['bet_status']['open'],config['bet_status']['standing']):
+                if bet_log[bet_key]['bidder'] == ctx.author.id and bet_log[bet_key]['status'] in ('open','standing'):
                     removed = bet_log.pop(bet_key)
                     with open("bet_log.json","w") as write_file:
                         json.dump(bet_log,write_file,indent=4)
@@ -294,7 +302,7 @@ class Bets(commands.Cog):
 
                 #find bets that match the criteria
                 if bet_key in bet_log:
-                    if bet_log[bet_key]['status'] == status or not status:
+                    if config['bet_status'][bet_log[bet_key]['status']] == status or not status:
                         bet_row = []
 
                         #add rows to bet log
@@ -304,7 +312,10 @@ class Bets(commands.Cog):
                                 val = "N/A"
                             #truncate strings that are too long
                             elif isinstance(bet_log[bet_key][cname],str):
-                                val = bet_log[bet_key][cname][:50] + (bet_log[bet_key][cname][50:] and '...')
+                                if cname == 'status':
+                                    val = config['bet_status'][bet_log[bet_key][cname]]
+                                else:
+                                    val = bet_log[bet_key][cname][:35] + (bet_log[bet_key][cname][35:] and '...')
                             #return nickname or id if not a nickname
                             else:
                                 val = await get_nick_from_id(ctx,bet_log[bet_key][cname])
@@ -359,13 +370,14 @@ class Bets(commands.Cog):
                 return
 
             # update bet status
-            if bet_log[bet_key]['status'] in (config['bet_status']['open'],config['bet_status']['standing']):
-                bet_log[bet_key]['seller'] = ctx.author.id
-                bet_log[bet_key]['status'] = config['bet_status']['pending']
+            if bet_log[bet_key]['status'] in ('open','standing'):
 
                 # taking a standing bet creates a new bet
-                if bet_log[bet_key]['status'] == config['bet_status']['standing']:
-                    new_bet_id = add_new_bet(self,ctx.author.id,statement,'standing')
+                if bet_log[bet_key]['status'] == 'standing':
+                    bet_log = self.add_new_bet(bet_log[bet_key]['bidder'],bet_log[bet_key]['statement'],'standing')
+
+                bet_log[bet_key]['seller'] = ctx.author.id
+                bet_log[bet_key]['status'] = 'pending'
 
                 #save log
                 with open("bet_log.json","w") as write_file:
@@ -396,7 +408,7 @@ class Bets(commands.Cog):
             if self.check_author(ctx,bet_id):
 
                 #open bids can be annulled
-                if bet_log[bet_key]['status'] in (config['bet_status']['open'],config['bet_status']['standing']):
+                if bet_log[bet_key]['status'] in ('open','standing'):
                     removed = bet_log.pop(bet_key)
                     with open("bet_log.json","w") as write_file:
                         json.dump(bet_log,write_file,indent=4)
@@ -404,8 +416,8 @@ class Bets(commands.Cog):
                     await timed_send(ctx,'removed bet '+str(bet_id)+' by '+nick)
 
                 #pending bids get set to resolved
-                elif bet_log[bet_key]['status'] == config['bet_status']['pending']:
-                    bet_log[bet_key]['status'] = config['bet_status']['resolved']
+                elif config['bet_status'][bet_log[bet_key]['status']] == 'pending':
+                    bet_log[bet_key]['status'] = 'resolved'
 
                     with open("bet_log.json","w") as write_file:
                         json.dump(bet_log,write_file,indent=4)
@@ -601,7 +613,6 @@ async def allowed_channel(ctx):
     #    return False
     return True
 
-bot.add_cog(cogs['welcome'](bot))
 bot.add_cog(cogs['bets'](bot))
 bot.add_cog(Admin(bot))
 bot.run(config['discord_auth_token'])

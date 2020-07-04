@@ -66,9 +66,9 @@ async def get_nick_from_id(ctx,id):
                 return member.nick
             user = await bot.fetch_user(id)
             return user.name
-        return "Unknown"
+        return str(id)
     except Exception:
-        raise
+        raise Exception('Nickname not found')
 
 class Welcome(commands.Cog):
 
@@ -192,7 +192,8 @@ class Bets(commands.Cog):
         self.lock = False
 
     def add_new_bet(self,name,statement,status='open'):
-        #add a new bet
+        '''add a new bet'''
+        #load existing bets
         with open("bet_log.json", "r") as read_file:
             bet_log = json.load(read_file)
         current_bet_id = bet_log['current_bet_id'] + 1
@@ -210,22 +211,26 @@ class Bets(commands.Cog):
         #update current_bet_id
         bet_log['current_bet_id'] = current_bet_id
 
+        #save updated bets
         with open("bet_log.json","w") as write_file:
             json.dump(bet_log,write_file,indent=4)
         return current_bet_id
 
-    def check_author(self,ctx,bet_id):
+    def check_author(self,ctx,bet_id: int):
+        '''checks if the person giving commands is in the bet'''
+        #load bets
         with open("bet_log.json", "r") as read_file:
             bet_log = json.load(read_file)
         bet_key = 'bet_'+str(bet_id)
+
+        #check bidder and seller (if it exists)
         try:
-            if bet_log[bet_key]['bidder'] == ctx.author.id or bet_log[bet_key]['seller'] == ctx.author.id:
-                return True
+            if 'seller' in bet_log[bet_key]:
+                return bet_log[bet_key]['bidder'] == ctx.author.id or bet_log[bet_key]['seller'] == ctx.author.id
             else:
-                return False
-        except Exception as e:
-            pass
-        return bet_log[bet_key]['bidder'] == ctx.author.id
+                return bet_log[bet_key]['bidder'] == ctx.author.id
+        except KeyError as e:
+            raise Exception('Couldn\'t check author')
 
     @commands.command()
     async def bet(self,ctx,*,statement):
@@ -234,10 +239,12 @@ class Bets(commands.Cog):
         try:
             bet_id = self.add_new_bet(ctx.author.id,statement)
             nick = await get_nick_from_id(ctx,ctx.author.id)
-            await timed_send(ctx, 'added bet '+str(bet_id)+' \"'+statement+'\" by '+nick+' to log.')
+            await timed_send(ctx, nick+' added bet '+str(bet_id)+': \"'+statement+'\"')
         except Exception as e:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
             raise
-            #await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
+
+    # TODO: create a standing bet
 
     @commands.command()
     async def imout(self,ctx):
@@ -247,18 +254,21 @@ class Bets(commands.Cog):
             return
         self.lock = True
 
-
+        #load bet log
         with open("bet_log.json", "r") as read_file:
             bet_log = json.load(read_file)
         current_bet_id = bet_log['current_bet_id']
 
+        #cycle through all the bets newest to oldest
         for i in range(current_bet_id,0,-1):
             bet_key = 'bet_'+str(i)
             try:
+                #only find open bets the author owns
                 if bet_log[bet_key]['bidder'] == ctx.author.id and bet_log[bet_key]['status'] in (config['bet_status']['open'],config['bet_status']['standing']):
                     removed = bet_log.pop(bet_key)
                     with open("bet_log.json","w") as write_file:
                         json.dump(bet_log,write_file,indent=4)
+
                     nick = await get_nick_from_id(ctx,ctx.author.id)
                     await timed_send(ctx,'removed '+bet_key+' by '+nick)
                     self.lock = False
@@ -269,39 +279,84 @@ class Bets(commands.Cog):
 
     @commands.command()
     async def viewbets(self,ctx,view:int = 10,status:str = None):
-        '''[num_bets] [status]: See open, pending, resolved or all bets'''
+        '''[num_bets] [status]: See log for open, pending, resolved or all bets'''
+        #load bets
         with open("bet_log.json", "r") as read_file:
             bet_log = json.load(read_file)
         current_bet_id = bet_log['current_bet_id']
         bet_rows = []
+
         try:
-            await timed_send(ctx,'Viewing latest '+str(view)+' bets with status ' + (status if status else 'anything'))
-            while len(bet_rows) <= view and current_bet_id > 0:
+            #give an update
+            await timed_send(ctx,'Viewing latest '+str(view)+' bets ' + ('with status `' + status +'`' if status else ''))
+            while len(bet_rows) < view and current_bet_id > 0:
                 bet_key = 'bet_'+str(current_bet_id)
+
+                #find bets that match the criteria
                 if bet_key in bet_log:
                     if bet_log[bet_key]['status'] == status or not status:
                         bet_row = []
+
+                        #add rows to bet log
                         for cname in config['bet_log_columns']:
-                            bet_row = bet_row+[("N/A" if cname not in bet_log[bet_key] else bet_log[bet_key][cname] if isinstance(bet_log[bet_key][cname],str) else str(bet_log[bet_key][cname]) if cname == 'bet_id' else await get_nick_from_id(ctx,bet_log[bet_key][cname]))]
+                            #for when sellers don't exist
+                            if cname not in bet_log[bet_key]:
+                                val = "N/A"
+                            #truncate strings that are too long
+                            elif isinstance(bet_log[bet_key][cname],str):
+                                val = bet_log[bet_key][cname][:50] + (bet_log[bet_key][cname][50:] and '...')
+                            #return nickname or id if not a nickname
+                            else:
+                                val = await get_nick_from_id(ctx,bet_log[bet_key][cname])
+                            bet_row = bet_row+[val]
                         bet_rows.append(bet_row)
+
                 current_bet_id = current_bet_id - 1
-            await timed_send(ctx, '`'+tabulate(bet_rows,headers=config['bet_log_columns'])+'`')
+            await timed_send(ctx, '```'+tabulate(bet_rows,headers=config['bet_log_columns'])+'```')
         except Exception as e:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
             raise
 
-        # TODO: open
-        # TODO: view limit
-        # TODO: pending
-        # TODO: resolved
+    @commands.command()
+    async def view(self,ctx,bet_id):
+        '''<bet_id>: view the terms for a single bet'''
+        #load bets
+        try:
+            with open("bet_log.json", "r") as read_file:
+                bet_log = json.load(read_file)
+            bet_key = 'bet_'+str(bet_id)
+            message = '>>> '
+
+            for cname in config['bet_log_columns']:
+                #for when sellers don't exist
+                if cname not in bet_log[bet_key]:
+                    val = "N/A"
+                #truncate strings that are too long
+                elif isinstance(bet_log[bet_key][cname],str):
+                    val = bet_log[bet_key][cname]
+                #return nickname or id if not a nickname
+                else:
+                    val = await get_nick_from_id(ctx,bet_log[bet_key][cname])
+                message = message + '**'+cname+'**: '+val+'\n'
+            await timed_send(ctx,message)
+        except KeyError as e:
+            await timed_send(ctx,'That bet doesn\'t exist!')
+            raise
+        except Exception:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
+            raise
 
     @commands.command()
-    async def take(self,ctx,bet_id: int):
+    async def take(self,ctx,bet_id):
         '''<bet_id>: take an open bet based on id'''
         with open("bet_log.json", "r") as read_file:
             bet_log = json.load(read_file)
         bet_key = 'bet_'+str(bet_id)
         try:
-            # TODO: make it so you can't take your own bets
+            # make it so you can't take your own bets
+            if bet_log[bet_key]['bidder'] == ctx.author.id:
+                await timed_send(ctx,'That\'s your own bet!')
+                return
 
             # update bet status
             if bet_log[bet_key]['status'] in (config['bet_status']['open'],config['bet_status']['standing']):
@@ -312,16 +367,22 @@ class Bets(commands.Cog):
                 if bet_log[bet_key]['status'] == config['bet_status']['standing']:
                     new_bet_id = add_new_bet(self,ctx.author.id,statement,'standing')
 
-
+                #save log
                 with open("bet_log.json","w") as write_file:
                     json.dump(bet_log,write_file,indent=4)
 
                 nick = await get_nick_from_id(ctx,ctx.author.id)
                 await timed_send(ctx,'Bet '+str(bet_id)+' has been claimed by '+nick+'!')
+
+            #bet has already been claimed
             else:
                 await timed_send(ctx,'That bet\'s not up for grabs!')
         except KeyError as e:
             await timed_send(ctx,'That bet doesn\'t exist!')
+            raise
+        except Exception:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
+            raise
 
     @commands.command()
     async def resolve(self,ctx,bet_id):
@@ -353,14 +414,33 @@ class Bets(commands.Cog):
             else:
                 await timed_send(ctx,'You can\'t resolve bets you aren\'t a part of!')
         except KeyError as e:
+            await timed_send(ctx,'That bet doesn\'t exist!')
             raise
-            #await timed_send(ctx,'That bet doesn\'t exist!')
+        except Exception:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
+            raise
 
     @commands.command()
     @commands.has_role('student')
     async def killbet(self,ctx,bet_id):
         '''Admin-only, deletes bets'''
-        await timed_send(ctx,'jk this one doesn\'t work')
+        try:
+            with open("bet_log.json", "r") as read_file:
+                bet_log = json.load(read_file)
+            bet_key = 'bet_'+str(bet_id)
+            removed = bet_log.pop(bet_key)
+
+            with open("bet_log.json","w") as write_file:
+                json.dump(bet_log,write_file,indent=4)
+
+            nick = await get_nick_from_id(ctx,ctx.author.id)
+            await timed_send(ctx,nick+' removed bet '+str(bet_id))
+        except KeyError as e:
+            await timed_send(ctx,'That bet doesn\'t exist!')
+            raise
+        except Exception as e:
+            await timed_send(ctx, 'Hmm...that didn\'t seem to work.')
+            raise
 
 class Calendar(commands.Cog):
 

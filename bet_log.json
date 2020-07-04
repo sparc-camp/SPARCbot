@@ -1,0 +1,16 @@
+{
+    "current_bet_id": 2,
+    "bet_1": {
+        "bet_id": 1,
+        "bidder": "Eric Neyman",
+        "seller": "Loki",
+        "status": "pending",
+        "statement": "35 bid for this same contract [100 sparkbucks if more than 100 bets are made in the first month of sparc.]"
+    },
+    "bet_2": {
+        "bet_id": 2,
+        "bidder": "catwu",
+        "status": "open",
+        "statement": "something"
+    }
+}

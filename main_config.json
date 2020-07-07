@@ -42,5 +42,12 @@
         "away_hours": 2,
         "tutorial_react_seconds": 300,
         "tutorial_cancel_seconds": 15
-    }
+    },
+    "bet_status": {
+      "open": "open",
+      "standing": "ongoing",
+      "pending": "pending",
+      "resolved": "resolved"
+    },
+    "bet_log_columns": ["bet_id","bidder","seller","status","statement"]
 }

@@ -1,0 +1,30 @@
+{
+    "current_bet_id": 4,
+    "bet_1": {
+        "bet_id": 1,
+        "bidder": 526857764161454090,
+        "seller": 468081117753507840,
+        "status": "pending",
+        "statement": "35 bid for this same contract [100 sparkbucks if more than 100 bets are made in the first month of sparc.]"
+    },
+    "bet_2": {
+        "bet_id": 2,
+        "bidder": 137361093289836545,
+        "seller": 330699000904679425,
+        "status": "resolved",
+        "statement": "95 bid that I can beat the seller in a 1-1 set game"
+    },
+    "bet_3": {
+        "bet_id": 3,
+        "bidder": 137361093289836545,
+        "seller": 330699000904679425,
+        "status": "resolved",
+        "statement": "95 bid that I can beat the seller in a 1-1 set game"
+    },
+    "bet_4": {
+        "bet_id": 4,
+        "bidder": 137361093289836545,
+        "status": "standing",
+        "statement": "95 bid that I can beat the seller in a 1-1 set game"
+    }
+}

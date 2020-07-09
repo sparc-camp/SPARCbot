@@ -613,6 +613,7 @@ async def allowed_channel(ctx):
     #    return False
     return True
 
+bot.add_cog(cogs['welcome'](bot))
 bot.add_cog(cogs['bets'](bot))
 bot.add_cog(Admin(bot))
 bot.run(config['discord_auth_token'])

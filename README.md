@@ -10,7 +10,7 @@ A Discord bot for vSPARC 2020.
 1. Make sure you have Python 3.6+ installed, and then:
 ```
 pip3 install -U google-api-python-client google-auth-httplib2 google-auth-oauthlib \
-    oauth2client discord.py python-dateutil humanize
+    oauth2client discord.py python-dateutil humanize tabulate
 ```
 
 2. Clone this repository and in the same directory, make a file called `auth.json`
@@ -30,7 +30,10 @@ which is a JSON file with the following structure:
 
 4. (Remind @shardulc to fill this in later. You can leave it blank in `auth.json` for now.)
 
-5. Remember to make a new branch if you are working on new features!
+5. Remember to make a new branch if you are working on new features:
+```
+git checkout -b new-branch-name
+```
 
 6. Run the bot with `python3 SPARCbot.py`.
 
